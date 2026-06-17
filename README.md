@@ -5,18 +5,19 @@
 > trademarks of JGraph Ltd.; DiagramForge is an independent project and is not affiliated with
 > or endorsed by them.
 
-Approach B from the design sketch: **build your own editor (skip MCP)**.
+DiagramForge owns the whole stack — its own editor UI, backend, AI provider, and a self-hosted
+copy of the draw.io editor:
 
 ```
-Your editor app  ──►  Your backend  ──►  AI provider
-(react-drawio)        (Next.js route)     (generates draw.io XML)
-      ▲                                          │
-      └──────────── XML loads back ──────────────┘
+DiagramForge UI  ──►  DiagramForge backend  ──►  AI provider
+(react-drawio)        (Next.js route)            (generates mxGraph XML)
+      ▲                                                │
+      └──────────────── XML loads back ───────────────┘
 ```
 
-A standalone web app: type a description, the Next.js backend asks an AI model to produce
-[draw.io](https://www.drawio.com/) `mxGraph` XML, and the result loads straight into an
-embedded draw.io editor where you can keep editing by hand or with follow-up prompts.
+A standalone web app: type a description, the backend asks an AI model to produce
+[draw.io](https://www.drawio.com/) `mxGraph` XML, and the result loads straight into the
+embedded editor where you can keep editing by hand or with follow-up prompts.
 
 The AI provider is configurable **from inside the app** — there is no model config in any
 `.env` file. Open **⚙ Settings**, pick a provider (**Anthropic (Claude)**, **OpenAI**, **Google
@@ -154,5 +155,6 @@ Adaptive thinking is enabled for Anthropic only; adjust `max_tokens` in
   server, so no diagram data leaves your own backend except the prompts/XML sent to the AI
   provider you selected. If the editor canvas never appears, the `public/drawio` assets are
   probably missing — run `npm run setup:drawio`. (The app shows a hint banner after ~20s.)
-- This is the "build your own product" path. If you instead just want Claude Desktop to drive
-  draw.io for personal use, that's Approach A (an MCP server) — a different project.
+- DiagramForge is a self-contained product. If you only want an AI assistant to drive a diagram
+  editor for personal use, an MCP-server approach (e.g. with Claude Desktop) is a simpler — but
+  separate — alternative.
