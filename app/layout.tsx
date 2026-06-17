@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "draw.io AI Editor",
-  description: "Describe a diagram in plain English and edit it live in draw.io.",
+  title: "DiagramForge",
+  description: "Describe a diagram in plain English and edit it live. Built on the open-source draw.io editor.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

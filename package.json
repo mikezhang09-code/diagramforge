@@ -1,12 +1,13 @@
 {
-  "name": "drawio-ai-editor",
+  "name": "diagramforge",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0 -p 3005",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup:drawio": "bash scripts/setup-drawio.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.2",

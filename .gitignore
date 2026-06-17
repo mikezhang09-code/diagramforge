@@ -26,3 +26,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# saved diagrams (user data)
+/diagrams
+
+# self-hosted draw.io editor (fetched via npm run setup:drawio)
+/public/drawio
