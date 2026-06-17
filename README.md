@@ -60,6 +60,36 @@ press **Generate**.
 
 (`.env.local` is purely optional — see [AI provider & model settings](#ai-provider--model-settings).)
 
+### Public internet access (Cloudflare Tunnel)
+
+To expose the running server to the public internet without opening firewall ports, use a
+Cloudflare **quick tunnel**:
+
+```bash
+npm run dev        # in one terminal (serves on :3005)
+npm run tunnel     # in another — prints a public https://<name>.trycloudflare.com URL
+```
+
+`npm run tunnel` runs `cloudflared tunnel --url http://localhost:3005`. The whole app —
+including the self-hosted editor at `/drawio` — is reachable at that URL, so public users get
+the full editor without needing to reach `embed.diagrams.net` themselves. (This is the Next.js
+equivalent of the `t + enter` quick tunnel that Cloudflare's Vite plugin offers.)
+
+Requires `cloudflared` on the host. Quick tunnels are **ephemeral** (new random URL each run)
+and rate-limited — fine for demos. For a stable URL on your own domain, use a **named tunnel**
+(`cloudflared tunnel login` → `create` → DNS route → run as a service).
+
+**Password gate.** Because there's no per-user accounts yet, the whole app is protected by a
+single shared password (HTTP Basic Auth in `middleware.ts`) — the page, `/api/*`, and the
+`/drawio` editor are all gated, so a public visitor must log in before anything loads. Set the
+password via `APP_PASSWORD` in `.env` (username can be anything; only the password is checked).
+A built-in default applies if unset, so the gate is always on — **set your own before going
+public**. Browsers cache the credential per origin, so it's a one-time prompt per session.
+
+> ⚠️ Still: don't set a real `*_API_KEY` in `.env` while public unless you intend authorized
+> users to spend it. The password gate controls access, but anyone you give the password to can
+> use the editor and read/write/delete diagrams via `/api/diagrams`.
+
 ### Tailscale / LAN access
 
 `npm run dev` binds to all interfaces (`-H 0.0.0.0`) on a fixed port (`3005`), so the editor is
