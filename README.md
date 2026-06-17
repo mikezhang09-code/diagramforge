@@ -85,6 +85,10 @@ Setup and versioning:
 - To point at a different editor instead (e.g. a CDN, or back to the hosted service), set
   `NEXT_PUBLIC_DRAWIO_BASE_URL` (e.g. `https://embed.diagrams.net`). When unset, the app uses
   its own origin + `/drawio/index.html`.
+- **Branding:** `setup:drawio` stamps DiagramForge's marks (from `assets/brand/`) over the
+  fetched editor's logo/favicon/title, so the served editor carries no draw.io logo. (In embed
+  mode draw.io doesn't display its logo in the editor UI anyway; this covers the favicon, the
+  bundled logo assets, and the iframe title.)
 
 ## Templates
 
