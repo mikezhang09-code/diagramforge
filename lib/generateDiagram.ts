@@ -1,8 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic(); // reads ANTHROPIC_API_KEY from the environment
-
-const MODEL = "claude-opus-4-8";
+import { getAdapter, envApiKey } from "./ai/providers";
 
 const SYSTEM_PROMPT = `You are a diagram generator for draw.io (diagrams.net). You convert a
 natural-language description into a single valid draw.io diagram expressed as mxGraph XML.
@@ -24,42 +20,54 @@ Rules:
   "rhombus;..." for decisions).
 - Prefer a clear top-to-bottom or left-to-right flow that matches the description.`;
 
+export interface GenerateOptions {
+  prompt: string;
+  /** The diagram already in the editor, sent as context for follow-up edits. */
+  currentXml?: string;
+  providerId: string;
+  model: string;
+  /** User-supplied key; falls back to the provider's env var when omitted. */
+  apiKey?: string;
+  /** User-supplied base URL override. */
+  baseUrl?: string;
+}
+
 /**
- * Turn a natural-language description into draw.io mxGraph XML.
- * `currentXml` (the diagram already in the editor) is passed as context so follow-up
- * prompts like "add a database node" can edit the existing diagram instead of starting over.
+ * Turn a natural-language description into draw.io mxGraph XML using the chosen
+ * provider and model. `currentXml` lets follow-up prompts edit an existing diagram.
  */
-export async function generateDiagram(
-  prompt: string,
-  currentXml?: string,
-): Promise<string> {
-  const userContent = currentXml?.trim()
+export async function generateDiagram(opts: GenerateOptions): Promise<string> {
+  const adapter = getAdapter(opts.providerId);
+  if (!adapter) throw new Error(`Unknown provider: ${opts.providerId}`);
+
+  const apiKey = opts.apiKey?.trim() || envApiKey(adapter);
+  if (!apiKey) {
+    throw new Error(
+      `No API key for ${adapter.label}. Enter one in Settings or set ${adapter.envKeys[0]}.`,
+    );
+  }
+  if (!opts.model) throw new Error("No model selected.");
+
+  const user = opts.currentXml?.trim()
     ? `Here is the current diagram XML. Modify it to satisfy the request, preserving existing ` +
-      `elements where it makes sense.\n\n<current_diagram>\n${currentXml}\n</current_diagram>\n\n` +
-      `Request: ${prompt}`
-    : prompt;
+      `elements where it makes sense.\n\n<current_diagram>\n${opts.currentXml}\n</current_diagram>\n\n` +
+      `Request: ${opts.prompt}`
+    : opts.prompt;
 
-  // Stream and collect the final message — protects against HTTP timeouts on larger diagrams.
-  const stream = client.messages.stream({
-    model: MODEL,
-    max_tokens: 16000,
-    thinking: { type: "adaptive" },
+  const text = await adapter.generate({
+    apiKey,
+    baseUrl: opts.baseUrl?.trim() || undefined,
+    model: opts.model,
     system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: userContent }],
+    user,
+    maxTokens: 16000,
   });
-
-  const message = await stream.finalMessage();
-
-  const text = message.content
-    .filter((block): block is Anthropic.TextBlock => block.type === "text")
-    .map((block) => block.text)
-    .join("");
 
   return extractXml(text);
 }
 
 /** Strip any stray code fences / prose and return the bare mxGraphModel document. */
-function extractXml(raw: string): string {
+export function extractXml(raw: string): string {
   let text = raw.trim();
 
   // Remove ```xml ... ``` fences if the model added them despite instructions.
