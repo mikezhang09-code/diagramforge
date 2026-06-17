@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "setup:drawio": "bash scripts/setup-drawio.sh",
-    "tunnel": "cloudflared tunnel --url http://localhost:3005"
+    "tunnel": "cloudflared tunnel --url http://localhost:3005",
+    "dev:public": "concurrently -k -n next,tunnel -c blue,magenta \"npm:dev\" \"npm:tunnel\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.2",
@@ -21,6 +22,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "concurrently": "^10.0.3",
     "typescript": "^5.7.0"
   }
 }

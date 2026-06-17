@@ -70,6 +70,8 @@ npm run dev        # in one terminal (serves on :3005)
 npm run tunnel     # in another — prints a public https://<name>.trycloudflare.com URL
 ```
 
+Or run both at once with `npm run dev:public` (uses `concurrently`; `Ctrl+C` stops both).
+
 `npm run tunnel` runs `cloudflared tunnel --url http://localhost:3005`. The whole app —
 including the self-hosted editor at `/drawio` — is reachable at that URL, so public users get
 the full editor without needing to reach `embed.diagrams.net` themselves. (This is the Next.js
