@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "setup:drawio": "bash scripts/setup-drawio.sh",
-    "tunnel": "cloudflared tunnel --url http://localhost:3005",
+    "tunnel": "bash scripts/tunnel.sh",
     "dev:public": "concurrently -k -n next,tunnel -c blue,magenta \"npm:dev\" \"npm:tunnel\""
   },
   "dependencies": {
